@@ -1,0 +1,13 @@
+{
+    "name": "hexlet/code",
+    "description": "Difference calculator project :)",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Семён Никифоров",
+            "email": "semnikiforov2000@gmail.com"
+        }
+    ],
+    "require": {}
+}
