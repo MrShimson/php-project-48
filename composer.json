@@ -9,5 +9,10 @@
             "email": "semnikiforov2000@gmail.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "require": {
+        "docopt/docopt": "^1.0"
+    }
 }
