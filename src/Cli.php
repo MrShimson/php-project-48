@@ -6,7 +6,6 @@ use Docopt;
 
 use function DifferenceCalculator\Gendiff\genDiff;
 
-
 function parseArgs(object $params): array
 {
     $params = json_decode(json_encode($params), true);
@@ -29,9 +28,9 @@ function runUtility(): void
       -v --version                  Show version
       --format <fmt>                Report format [default: stylish]
     DOC;
-    
+
     $params = Docopt::handle($doc);
-    
+
     if ($params['--format'] === 'stylish') {
         $pathToFile1 = $params['<firstFile>'];
         $pathToFile2 = $params['<secondFile>'];
