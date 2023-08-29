@@ -12,19 +12,17 @@ class GendiffTest extends TestCase
     {
         $path1 = 'file1.json';
         $path2 = 'file2.json';
-        $expected = ("\nThe file does not exist at this path:\n{$path1}\n");
+        $expected1 = ("\nThe file does not exist at this path:\n{$path1}\n");
 
-        $this->assertEquals($expected, genDiff($path1, $path2));
-
-        $path1 = "tests/fixtures/file1.json";
-        $expected = ("\nThe file does not exist at this path:\n{$path2}\n");
-
-        $this->assertEquals($expected, genDiff($path1, $path2));
+        $this->assertEquals($expected1, genDiff($path1, $path2));
 
         $path1 = "tests/fixtures/file1.json";
+        $expected2 = ("\nThe file does not exist at this path:\n{$path2}\n");
+
+        $this->assertEquals($expected2, genDiff($path1, $path2));
+
         $path2 = "/home/mr_shimson/hexlet-projects/difference-calculator/tests/fixtures/file2.json";
-
-        $difference = <<<EOT
+        $expected3 = <<<EOT
         {
           - follow: false
             host: hexlet.io
@@ -35,6 +33,6 @@ class GendiffTest extends TestCase
         }
         
         EOT;
-        $this->assertEquals($difference, genDiff($path1, $path2));
+        $this->assertEquals($expected3, genDiff($path1, $path2));
     }
 }
