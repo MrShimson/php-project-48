@@ -1,10 +1,10 @@
 name: linter-and-tests
 
 on: push
-  jobs:
-    analyze:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - run: make lint
-        - run: make test
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make lint
+      - run: make test
