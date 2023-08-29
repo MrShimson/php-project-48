@@ -6,6 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: make autoload
+      - run: make install
       - run: make lint
       - run: make test
