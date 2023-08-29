@@ -2,12 +2,17 @@
 
 namespace DifferenceCalculator\Gendiff;
 
-function getJsonContent(string $pathToFile): array
+function getJsonContent(string $pathToFile)
 {
-    if (!file_exists($pathToFile)) {
-        $pathToFile = __DIR__ . "/..{$pathToFile}";
+    $absolutePath = $pathToFile;
+    $relativePath = __DIR__ . "/..{$pathToFile}";
+    if (file_exists($absolutePath)) {
+        return json_decode(file_get_contents($absolutePath), true);
+    } elseif (file_exists($relativePath)) {
+        return json_decode(file_get_contents($relativePath), true);
+    } else {
+        throw new \Exception("\nThe file does not exist at this path:\n{$pathToFile}\n");
     }
-    return json_decode(file_get_contents($pathToFile), true);
 }
 
 function getKeys(array $coll1, array $coll2): array
@@ -33,8 +38,12 @@ function convertTypes(array $coll): array
 
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
-    $file1 = getJsonContent($pathToFile1);
-    $file2 = getJsonContent($pathToFile2);
+    try {
+        $file1 = getJsonContent($pathToFile1);
+        $file2 = getJsonContent($pathToFile2);
+    } catch (\Exception $error) {
+        return $error->getMessage();
+    }
 
     $file1 = convertTypes($file1);
     $file2 = convertTypes($file2);
