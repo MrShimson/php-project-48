@@ -21,7 +21,7 @@ class GendiffTest extends TestCase
 
         $this->assertEquals($expected2, genDiff($path1, $path2));
 
-        $path2 = "/home/mr_shimson/hexlet-projects/difference-calculator/tests/fixtures/file2.json";
+        $path2 = "tests/fixtures/file2.json";
         $expected3 = <<<EOT
         {
           - follow: false
