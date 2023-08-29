@@ -1,3 +1,5 @@
 /vendor/
 .editorconfig
 /.vscode/
+*.cache
+/build/
