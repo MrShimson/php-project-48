@@ -18,12 +18,12 @@ class GendiffTest extends TestCase
 
         $path1 = "tests/fixtures/file1.json";
         $expected = ("\nThe file does not exist at this path:\n{$path2}\n");
-        
+
         $this->assertEquals($expected, genDiff($path1, $path2));
-        
+
         $path1 = "tests/fixtures/file1.json";
         $path2 = "/home/mr_shimson/hexlet-projects/difference-calculator/tests/fixtures/file2.json";
-        
+
         $difference = <<<EOT
         {
           - follow: false
