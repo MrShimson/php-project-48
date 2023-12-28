@@ -2,4 +2,3 @@
 .editorconfig
 /.vscode/
 *.cache
-/build/
