@@ -18,7 +18,8 @@
     },
     "require": {
         "docopt/docopt": "^1.0",
-        "lstrojny/functional-php": "^1.17"
+        "lstrojny/functional-php": "^1.17",
+        "symfony/yaml": "^6.4"
     },
     "autoload": {
         "files": [
