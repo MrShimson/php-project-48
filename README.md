@@ -9,5 +9,5 @@
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/5dab8670bf9fef2fe15c/test_coverage)](https://codeclimate.com/github/MrShimson/php-project-48/test_coverage)
 
-### Generate Difference (Stylish):
+### Generate Difference (JSON):
 [![asciicast](https://asciinema.org/a/604330.svg)](https://asciinema.org/a/604330)
