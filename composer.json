@@ -24,7 +24,8 @@
     "autoload": {
         "files": [
             "src/Cli.php",
-            "src/Gendiff.php"
+            "src/Gendiff.php",
+            "src/Parsers.php"
         ]
     }
 }

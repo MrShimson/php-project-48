@@ -2,51 +2,24 @@
 
 namespace DifferenceCalculator\Gendiff;
 
-function getJsonContent(string $pathToFile)
-{
-    $absolutePath = $pathToFile;
-    $relativePath = __DIR__ . "/..{$pathToFile}";
-    if (file_exists($absolutePath)) {
-        return json_decode(file_get_contents($absolutePath), true);
-    } elseif (file_exists($relativePath)) {
-        return json_decode(file_get_contents($relativePath), true);
-    } else {
-        throw new \Exception("\nThe file does not exist at this path:\n{$pathToFile}\n");
-    }
-}
+use function DifferenceCalculator\Parsers\getData;
 
 function getKeys(array $coll1, array $coll2): array
 {
-    $keys = array_merge(array_keys($coll1), array_keys($coll2));
-    $keys = array_values(array_unique($keys));
-    sort($keys);
+    $keys = array_merge(array_keys($coll1), array_keys($coll2));//Функция выбирает все ключи из двух массивов
+    $keys = array_values(array_unique($keys));                  //убирает повторяющиеся и
+    sort($keys);                                                //сортирует в правильном порядке
     return $keys;
-}
-
-function convertTypes(array $coll): array
-{
-    $callback = function ($value) {
-        if (gettype($value) === 'boolean' || gettype($value) === 'NULL') {
-            return json_encode($value);
-        }
-        return $value;
-    };
-
-    $file = array_map(fn($value) => $callback($value), $coll);
-    return $file;
 }
 
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
     try {
-        $file1 = getJsonContent($pathToFile1);
-        $file2 = getJsonContent($pathToFile2);
+        $file1 = getData($pathToFile1);
+        $file2 = getData($pathToFile2);
     } catch (\Exception $error) {
         return $error->getMessage();
     }
-
-    $file1 = convertTypes($file1);
-    $file2 = convertTypes($file2);
 
     $keys = getKeys($file1, $file2);
 
