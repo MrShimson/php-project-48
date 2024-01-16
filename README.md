@@ -11,3 +11,6 @@
 
 ### Generate Difference (JSON):
 [![asciicast](https://asciinema.org/a/604330.svg)](https://asciinema.org/a/604330)
+
+### Generate Difference (YAML):
+[![asciicast](https://asciinema.org/a/631598.svg)](https://asciinema.org/a/631598)
