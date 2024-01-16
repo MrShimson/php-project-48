@@ -10,8 +10,8 @@ class GendiffTest extends TestCase
 {
     public function testGenDiff(): void
     {
-        $path1 = "tests/fixtures/file1.json";
-        $path2 = "tests/fixtures/file2.json";
+        $path1 = "tests/fixtures/flat/file1.json";
+        $path2 = "tests/fixtures/flat/file2.json";
 
         $expected1 = <<<EOT
         {
@@ -27,8 +27,8 @@ class GendiffTest extends TestCase
 
         $this->assertEquals($expected1, genDiff($path1, $path2));
 
-        $path1 = "tests/fixtures/file1.yaml";
-        $path2 = "tests/fixtures/file2.yaml";
+        $path1 = "tests/fixtures/flat/file1.yaml";
+        $path2 = "tests/fixtures/flat/file2.yaml";
 
         $expected2 = <<<EOT
         {

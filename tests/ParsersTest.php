@@ -60,8 +60,8 @@ class ParsersTest extends TestCase
         //
 
         //Тесты на корректность парсинга данных из файлов
-        $path3 = 'tests/fixtures/file1.json';
-        $path4 = 'tests/fixtures/file1.yaml';
+        $path3 = 'tests/fixtures/flat/file1.json';
+        $path4 = 'tests/fixtures/flat/file1.yaml';
 
         $file = [
             'host' => 'hexlet.io',
