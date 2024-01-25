@@ -25,7 +25,7 @@ class GendiffTest extends TestCase
           + timeout: 20
           + verbose: true
         }
-        
+
         EOT;
 
         $this->assertEquals($expected1, genDiff($path1, $path2));
@@ -36,7 +36,7 @@ class GendiffTest extends TestCase
 
         $path7 = "tests/fixtures/nested/file1.yaml";
         $path8 = "tests/fixtures/nested/file2.yaml";
-        
+
         $expected2 = <<<EOT
         {
             common: {
