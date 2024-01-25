@@ -14,7 +14,7 @@ function convertTypes(array $coll): array
         return $value;
     };
 
-    $file = array_map(fn($value) => $callback($value), $coll);
+    $file = array_map(fn($value) => is_array($value) ? convertTypes($value) : $callback($value), $coll);
     return $file;
 }
 

@@ -63,15 +63,48 @@ class ParsersTest extends TestCase
         $path3 = 'tests/fixtures/flat/file1.json';
         $path4 = 'tests/fixtures/flat/file1.yaml';
 
-        $file = [
+        $file1 = [
             'host' => 'hexlet.io',
             'timeout' => '50',
             'proxy' => '123.234.53.22',
             'follow' => 'false'
         ];
 
-        $this->assertEquals($file, getData($path3));
-        $this->assertEquals($file, getData($path4));
+        $this->assertEquals($file1, getData($path3));
+        $this->assertEquals($file1, getData($path4));
+
+        $path5 = 'tests/fixtures/nested/file1.json';
+        $path6 = 'tests/fixtures/nested/file1.yaml';
+
+        $file2 = [
+            'common' => [
+                'setting1' => 'Value 1',
+                'setting2' => '200',
+                'setting3' => 'true',
+                'setting6' => [
+                    'key' => 'value',
+                    'doge' => [
+                        'wow' => ''
+                    ]
+                ]
+            ],
+            'group1' => [
+                'baz' => 'bas',
+                'foo' => 'bar',
+                'nest' => [
+                    'key' => 'value'
+                ]
+            ],
+            'group2' => [
+                'abc' => '12345',
+                'deep' => [
+                    'id' => '45'
+                ]
+            ]
+        ];
+
+        $this->assertEquals($file2, getData($path5));
+        $this->assertEquals($file2, getData($path6));
         //
     }
 }

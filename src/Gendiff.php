@@ -3,16 +3,50 @@
 namespace DifferenceCalculator\Gendiff;
 
 use function DifferenceCalculator\Parsers\getData;
+use function DifferenceCalculator\Formatter\stylish;
 
 function getKeys(array $coll1, array $coll2): array
 {
     $keys = array_merge(array_keys($coll1), array_keys($coll2));//Функция выбирает все ключи из двух массивов
     $keys = array_values(array_unique($keys));                  //убирает повторяющиеся и
-    sort($keys);                                                //сортирует в правильном порядке
+    sort($keys);                                                //сортирует в алфавитном порядке
     return $keys;
 }
 
-function genDiff(string $pathToFile1, string $pathToFile2): string
+function buildDiffTree(array $tree1, array $tree2): array
+{
+    $keys = getKeys($tree1, $tree2);
+
+    $diff = [];
+
+    foreach ($keys as $key) {
+        if (isset($tree1[$key]) && isset($tree2[$key])) {
+            $value1 = $tree1[$key];
+            $value2 = $tree2[$key];
+            if (!is_array($value1) && !is_array($value2)) {
+                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, 'minus|plus'];
+            } elseif (is_array($value1) && is_array($value2)) {
+                if (!array_is_list($value1) && !array_is_list($value2)) {
+                    $diff[$key] = buildDiffTree($value1, $value2);
+                } else {
+                    $diff[$key] = [$value1, $value2, 'minus|plus'];
+                }
+            } else {
+                $diff[$key] = [$value1, $value2, 'minus|plus'];
+            }
+        } elseif (isset($tree1[$key])) {
+            $value1 = $tree1[$key];
+            $diff[$key] = [$value1, 'minus'];
+        } else {
+            $value2 = $tree2[$key];
+            $diff[$key] = [$value2, 'plus'];
+        }
+    }
+
+    return $diff;
+}
+
+function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'): string
 {
     try {
         $file1 = getData($pathToFile1);
@@ -21,28 +55,11 @@ function genDiff(string $pathToFile1, string $pathToFile2): string
         return $error->getMessage();
     }
 
-    $keys = getKeys($file1, $file2);
+    $diff = buildDiffTree($file1, $file2);
 
-    $diff = array_reduce($keys, function ($acc, $key) use ($file1, $file2) {
-        if (array_key_exists($key, $file1) && array_key_exists($key, $file2)) {
-            $value1 = $file1[$key];
-            $value2 = $file2[$key];
-            if ($value1 === $value2) {
-                $acc[] = "    {$key}: {$value1}";
-            } else {
-                $acc[] = "  - {$key}: {$value1}";
-                $acc[] = "  + {$key}: {$value2}";
-            }
-        } elseif (array_key_exists($key, $file1)) {
-            $value = $file1[$key];
-            $acc[] = "  - {$key}: {$value}";
-        } else {
-            $value = $file2[$key];
-            $acc[] = "  + {$key}: {$value}";
-        }
-        return $acc;
-    }, ['{']);
-    $diff[] = "}\n";
+    if ($format === 'stylish') {
+        $diff = stylish($diff);
+    }
 
-    return implode("\n", $diff);
+    return $diff;
 }

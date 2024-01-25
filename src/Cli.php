@@ -6,14 +6,14 @@ use Docopt;
 
 use function DifferenceCalculator\Gendiff\genDiff;
 
-function parseArgs(object $params): array
+/*function parseArgs(object $params): array
 {
     $params = json_decode(json_encode($params), true);
     $args = $params['args'];
     return $args;
-}
+}*/
 
-function runUtility(): void
+function runUtility()
 {
     $doc = <<<DOC
     Generate diff
@@ -34,6 +34,7 @@ function runUtility(): void
     if ($params['--format'] === 'stylish') {
         $pathToFile1 = $params['<firstFile>'];
         $pathToFile2 = $params['<secondFile>'];
+
         print_r(genDiff($pathToFile1, $pathToFile2));
     }
 }

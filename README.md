@@ -14,3 +14,6 @@
 
 ### Generate Difference (YAML):
 [![asciicast](https://asciinema.org/a/631598.svg)](https://asciinema.org/a/631598)
+
+### Generate Difference (format - 'stylish'):
+[![asciicast](https://asciinema.org/a/633138.svg)](https://asciinema.org/a/633138)

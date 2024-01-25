@@ -25,7 +25,8 @@
         "files": [
             "src/Cli.php",
             "src/Gendiff.php",
-            "src/Parsers.php"
+            "src/Parsers.php",
+            "src/Formatter.php"
         ]
     }
 }
