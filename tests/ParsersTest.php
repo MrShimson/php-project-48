@@ -8,75 +8,69 @@ use function DifferenceCalculator\Parsers\getData;
 
 class ParsersTest extends TestCase
 {
-    public function testGetData(): void
+    private $pathEmptyXml;
+    private $pathEmptyJson;
+    private $pathEmptyYaml;
+
+    private $existanceMessage;
+    private $extensionMessage;
+    private $emptinessMessageJson;
+    private $emptinessMessageYaml;
+
+    public function getFixtureFullPath($dir, $name, $ext)
+    {
+        $urlParts = [__DIR__, 'fixtures', $dir, $name . '.' . $ext];
+        return realpath(implode('/', $urlParts));
+    }
+
+    public function setUp(): void
+    {
+        $this->pathEmptyXml = $this->getFixtureFullPath('empty', 'empty', 'xml');
+        $this->pathEmptyJson = $this->getFixtureFullPath('empty', 'empty', 'json');
+        $this->pathEmptyYaml = $this->getFixtureFullPath('empty', 'empty', 'yaml');
+
+        $this->existanceMessage = "\nThis file does not exist at this path:\nempty.xml\n";
+        $this->extensionMessage = "\nThis file has invalid extension:\n.xml\n";
+        $this->emptinessMessageJson = "\nThis file is empty:\nempty.json\n";
+        $this->emptinessMessageYaml = "\nThis file is empty:\nempty.yaml\n";
+    }
+
+    public function testException(): void
     {
         //Тест на существования файла
+        $this->expectExceptionMessage($this->existanceMessage);
+
         $path = 'empty.xml';
-        $expected = "\nThis file does not exist at this path:\nempty.xml\n";
-
-        try {
-            getData($path);
-        } catch (\Exception $error) {
-            $error = $error->getMessage();
-        }
-
-        $this->assertEquals($expected, $error);
+        getData($path);
         //
 
         //Тест на корректность расширения
-        $path = 'tests/fixtures/empty/empty.xml';
-        $expected = "\nThis file has invalid extension:\n.xml\n";
+        $this->expectExceptionMessage($this->extensionMessage);
 
-        try {
-            getData($path);
-        } catch (\Exception $error) {
-            $error = $error->getMessage();
-        }
-
-        $this->assertEquals($expected, $error);
+        $path = $this->pathEmptyXml;
+        getData($path);
         //
 
         //Тесты на наличие в файлах каких-либо данных
-        $path1 = 'tests/fixtures/empty/empty.json';
-        $path2 = 'tests/fixtures/empty/empty.yaml';
+        $this->expectExceptionMessage($this->emptinessMessageJson);
 
-        try {
-            getData($path1);
-        } catch (\Exception $error) {
-            $error1 = $error->getMessage();
-        }
+        $path = $this->pathEmptyJson;
+        getData($path);
 
-        try {
-            getData($path2);
-        } catch (\Exception $error) {
-            $error2 = $error->getMessage();
-        }
+        $this->expectExceptionMessage($this->emptinessMessageYaml);
 
-        $expected1 = ("\nThis file is empty:\nempty.json\n");
-        $expected2 = ("\nThis file is empty:\nempty.yaml\n");
-
-        $this->assertEquals($expected1, $error1);
-        $this->assertEquals($expected2, $error2);
+        $path = $this->pathEmptyYaml;
+        getData($path);
         //
+    }
 
+    public function testGetData(): void
+    {
         //Тесты на корректность парсинга данных из файлов
-        $path3 = 'tests/fixtures/flat/file1.json';
-        $path4 = 'tests/fixtures/flat/file1.yaml';
+        $path1 = $this->getFixtureFullPath('nested', 'file1', 'json');
+        $path2 = $this->getFixtureFullPath('nested', 'file1', 'yaml');
 
-        $file1 = [
-            'host' => 'hexlet.io',
-            'timeout' => '50',
-            'proxy' => '123.234.53.22',
-            'follow' => 'false'
-        ];
-
-        $this->assertEquals($file1, getData($path3));
-        $this->assertEquals($file1, getData($path4));
-
-        $path5 = 'tests/fixtures/nested/file1.json';
-        $path6 = 'tests/fixtures/nested/file1.yaml';
-
-        $file2 = [
+        $file = [
             'common' => [
                 'setting1' => 'Value 1',
                 'setting2' => '200',
@@ -103,8 +97,8 @@ class ParsersTest extends TestCase
             ]
         ];
 
-        $this->assertEquals($file2, getData($path5));
-        $this->assertEquals($file2, getData($path6));
+        $this->assertEquals($file, getData($path1));
+        $this->assertEquals($file, getData($path2));
         //
     }
 }
