@@ -24,22 +24,22 @@ function buildDiffTree(array $tree1, array $tree2): array
             $value1 = $tree1[$key];
             $value2 = $tree2[$key];
             if (!is_array($value1) && !is_array($value2)) {
-                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, 'minus|plus'];
+                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, 'update'];
             } elseif (is_array($value1) && is_array($value2)) {
                 if (!array_is_list($value1) && !array_is_list($value2)) {
                     $diff[$key] = buildDiffTree($value1, $value2);
                 } else {
-                    $diff[$key] = [$value1, $value2, 'minus|plus'];
+                    $diff[$key] = [$value1, $value2, 'update'];
                 }
             } else {
-                $diff[$key] = [$value1, $value2, 'minus|plus'];
+                $diff[$key] = [$value1, $value2, 'update'];
             }
         } elseif (isset($tree1[$key])) {
             $value1 = $tree1[$key];
-            $diff[$key] = [$value1, 'minus'];
+            $diff[$key] = [$value1, 'remove'];
         } else {
             $value2 = $tree2[$key];
-            $diff[$key] = [$value2, 'plus'];
+            $diff[$key] = [$value2, 'add'];
         }
     }
 

@@ -28,7 +28,7 @@ function stylish(array $array, string $spaceSymbol = ' ', int|array $spacesCount
         $sign = $value[array_key_last($value)];
 
         switch ($sign) {
-            case 'minus|plus':
+            case 'update':
                 $firstValue = $value[0];
                 if (is_array($firstValue)) {
                     $firstValue = stylish($firstValue, $spaceSymbol, $spacesCount, true);
@@ -43,7 +43,7 @@ function stylish(array $array, string $spaceSymbol = ' ', int|array $spacesCount
                 $formatted .= "{$indentWithPlus}{$key}: {$secondValue}\n";
 
                 break;
-            case 'minus':
+            case 'remove':
                 $firstValue = $value[0];
                 if (is_array($firstValue)) {
                     $firstValue = stylish($firstValue, $spaceSymbol, $spacesCount, true);
@@ -52,7 +52,7 @@ function stylish(array $array, string $spaceSymbol = ' ', int|array $spacesCount
                 $formatted .= "{$indentWithMinus}{$key}: {$firstValue}\n";
 
                 break;
-            case 'plus':
+            case 'add':
                 $secondValue = $value[0];
                 if (is_array($secondValue)) {
                     $secondValue = stylish($secondValue, $spaceSymbol, $spacesCount, true);
