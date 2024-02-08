@@ -17,3 +17,6 @@
 
 ### Generate Difference (format - 'stylish'):
 [![asciicast](https://asciinema.org/a/633138.svg)](https://asciinema.org/a/633138)
+
+### Generate Difference (format - 'plain'):
+[![asciicast](https://asciinema.org/a/636998.svg)](https://asciinema.org/a/636998)
