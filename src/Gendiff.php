@@ -3,7 +3,7 @@
 namespace DifferenceCalculator\Gendiff;
 
 use function DifferenceCalculator\Parsers\getData;
-use function DifferenceCalculator\Formatter\stylish;
+use function DifferenceCalculator\Formatter\formatDiff;
 
 function getKeys(array $coll1, array $coll2): array
 {
@@ -24,22 +24,22 @@ function buildDiffTree(array $tree1, array $tree2): array
             $value1 = $tree1[$key];
             $value2 = $tree2[$key];
             if (!is_array($value1) && !is_array($value2)) {
-                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, 'update'];
+                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, '_update_'];
             } elseif (is_array($value1) && is_array($value2)) {
                 if (!array_is_list($value1) && !array_is_list($value2)) {
                     $diff[$key] = buildDiffTree($value1, $value2);
                 } else {
-                    $diff[$key] = [$value1, $value2, 'update'];
+                    $diff[$key] = [$value1, $value2, '_update_'];
                 }
             } else {
-                $diff[$key] = [$value1, $value2, 'update'];
+                $diff[$key] = [$value1, $value2, '_update_'];
             }
         } elseif (isset($tree1[$key])) {
             $value1 = $tree1[$key];
-            $diff[$key] = [$value1, 'remove'];
+            $diff[$key] = [$value1, '_remove_'];
         } else {
             $value2 = $tree2[$key];
-            $diff[$key] = [$value2, 'add'];
+            $diff[$key] = [$value2, '_add_'];
         }
     }
 
@@ -57,9 +57,5 @@ function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'):
 
     $diff = buildDiffTree($file1, $file2);
 
-    if ($format === 'stylish') {
-        $diff = stylish($diff);
-    }
-
-    return $diff;
+    return formatDiff($diff, $format);
 }

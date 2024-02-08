@@ -36,5 +36,18 @@ function runUtility()
         $pathToFile2 = $params['<secondFile>'];
 
         print_r(genDiff($pathToFile1, $pathToFile2));
+    } elseif ($params['--format'] === 'plain') {
+        $pathToFile1 = $params['<firstFile>'];
+        $pathToFile2 = $params['<secondFile>'];
+
+        print_r(genDiff($pathToFile1, $pathToFile2, 'plain'));
+    } else {
+        $format = $params['--format'];
+        print_r("Wrong format '{$format}', deafault format 'stylish' applied:\n");
+
+        $pathToFile1 = $params['<firstFile>'];
+        $pathToFile2 = $params['<secondFile>'];
+
+        print_r(genDiff($pathToFile1, $pathToFile2));
     }
 }
