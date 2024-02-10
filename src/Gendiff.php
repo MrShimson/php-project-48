@@ -5,48 +5,48 @@ namespace DifferenceCalculator\Gendiff;
 use function DifferenceCalculator\Parsers\getData;
 use function DifferenceCalculator\Formatter\formatDiff;
 
-function getKeys(array $coll1, array $coll2): array
+function mergeKeys(array $coll1, array $coll2): array
 {
-    $keys = array_merge(array_keys($coll1), array_keys($coll2));//Функция выбирает все ключи из двух массивов
+    $keys = array_merge(array_keys($coll1), array_keys($coll2));//Функция сливает все ключи из двух массивов
     $keys = array_values(array_unique($keys));                  //убирает повторяющиеся и
     sort($keys);                                                //сортирует в алфавитном порядке
     return $keys;
 }
 
-function buildDiffTree(array $tree1, array $tree2): array
+function buildDiff(array $tree1, array $tree2): array
 {
-    $keys = getKeys($tree1, $tree2);
+    $keys = mergeKeys($tree1, $tree2);
 
-    $diff = [];
-
-    foreach ($keys as $key) {
+    $callback = function ($acc, $key) use ($tree1, $tree2) {
         if (isset($tree1[$key]) && isset($tree2[$key])) {
             $value1 = $tree1[$key];
             $value2 = $tree2[$key];
-            if (!is_array($value1) && !is_array($value2)) {
-                $diff[$key] = $value1 === $value2 ? $value1 : [$value1, $value2, '_update_'];
-            } elseif (is_array($value1) && is_array($value2)) {
-                if (!array_is_list($value1) && !array_is_list($value2)) {
-                    $diff[$key] = buildDiffTree($value1, $value2);
-                } else {
-                    $diff[$key] = [$value1, $value2, '_update_'];
-                }
+
+            if ($value1 === $value2) {
+                $acc[$key] = ['unchanged', $value1];
             } else {
-                $diff[$key] = [$value1, $value2, '_update_'];
+                if (is_array($value1) && is_array($value2)) {
+                    $acc[$key] = (!array_is_list($value1) && !array_is_list($value2)) ?
+                        buildDiff($value1, $value2) : ['updated', $value1, $value2];
+                } else {
+                    $acc[$key] = ['updated', $value1, $value2];
+                }
             }
         } elseif (isset($tree1[$key])) {
-            $value1 = $tree1[$key];
-            $diff[$key] = [$value1, '_remove_'];
+            $value = $tree1[$key];
+            $acc[$key] = ['removed', $value];
         } else {
-            $value2 = $tree2[$key];
-            $diff[$key] = [$value2, '_add_'];
+            $value = $tree2[$key];
+            $acc[$key] = ['added', $value];
         }
-    }
 
-    return $diff;
+        return $acc;
+    };
+
+    return array_reduce($keys, $callback, []);
 }
 
-function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'): string
+function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'): string|array
 {
     try {
         $file1 = getData($pathToFile1);
@@ -55,7 +55,7 @@ function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'):
         return $error->getMessage();
     }
 
-    $diff = buildDiffTree($file1, $file2);
+    $diff = buildDiff($file1, $file2);
 
     return formatDiff($diff, $format);
 }

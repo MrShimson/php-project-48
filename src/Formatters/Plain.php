@@ -2,6 +2,8 @@
 
 namespace DifferenceCalculator\Formatters\Plain;
 
+use function DifferenceCalculator\Formatters\Stylish\isAssociative;
+
 function formatType(string $value): string
 {
     $types = ['null', 'true', 'false'];
@@ -14,55 +16,67 @@ function formatType(string $value): string
 
 function plain(array $diff, string $previousKey = ''): string|null
 {
-    $formatted = '';
+    $keys = array_keys($diff);
 
-    foreach ($diff as $key => $value) {
+    $callback = function ($acc, $key) use ($diff, $previousKey) {
         $property = "{$previousKey}{$key}";
         $addFormat = "Property '{$property}' was added with value: %s\n";
         $removeFormat = "Property '{$property}' was removed\n";
         $updateFormat = "Property '{$property}' was updated. From %s to %s\n";
-        $property .= '.';
+        $property = "{$property}.";
 
-        if (!is_array($value)) {
-            continue;
+        $values = $diff[$key];
+
+        if (isAssociative($values)) {
+            $acc[] = plain($values, $property);
+        } else {
+            if (sizeof($values) === 2) {
+                [$action, $currValue] = $values;
+            } else {
+                [$action, $prevValue, $currValue] = $values;
+            }
+
+            switch ($action) {
+                case 'unchanged':
+                    break;
+                case 'removed':
+                    if (is_array($currValue)) {
+                        $currValue = "[complex value]";
+                    } else {
+                        $currValue = formatType($currValue);
+                    }
+                    $acc[] = sprintf($removeFormat, $currValue);
+                    break;
+                case 'added':
+                    if (is_array($currValue)) {
+                        $currValue = "[complex value]";
+                    } else {
+                        $currValue = formatType($currValue);
+                    }
+                    $acc[] = sprintf($addFormat, $currValue);
+                    break;
+                case 'updated':
+                    if (is_array($prevValue)) {
+                        $prevValue = "[complex value]";
+                    } else {
+                        $prevValue = formatType($prevValue);
+                    }
+
+                    if (is_array($currValue)) {
+                        $currValue = "[complex value]";
+                    } else {
+                        $currValue = formatType($currValue);
+                    }
+
+                    $acc[] = sprintf($updateFormat, $prevValue, $currValue);
+                    break;
+            }
         }
 
-        $action = $value[array_key_last($value)];
+        return $acc;
+    };
 
-        switch ($action) {
-            case '_update_':
-                $previousValue = $value[0];
-                $previousValue = is_array($previousValue) ?
-                    '[complex value]' : formatType($previousValue);
+    $formattedDiff = array_reduce($keys, $callback, []);
 
-                $currentValue = $value[1];
-                $currentValue = is_array($currentValue) ?
-                    '[complex value]' : formatType($currentValue);
-
-                $formatted .= sprintf($updateFormat, $previousValue, $currentValue);
-
-                break;
-            case '_remove_':
-                $currentValue = $value[0];
-                $currentValue = is_array($currentValue) ?
-                    '[complex value]' : formatType($currentValue);
-
-                $formatted .= sprintf($removeFormat, $currentValue);
-
-                break;
-            case '_add_':
-                $currentValue = $value[0];
-                $currentValue = is_array($currentValue) ?
-                    '[complex value]' : formatType($currentValue);
-
-                $formatted .= sprintf($addFormat, $currentValue);
-
-                break;
-            default:
-                $currentValue = plain($value, $property);
-                $formatted .= $currentValue;
-        }
-    }
-
-    return $formatted;
+    return implode('', $formattedDiff);
 }

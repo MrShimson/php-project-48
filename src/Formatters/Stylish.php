@@ -2,72 +2,95 @@
 
 namespace DifferenceCalculator\Formatters\Stylish;
 
-function stylish(array $diff, string $spaceSymbol = ' ', int|array $spacesCount = 4, bool $inner = false): string|null
+function isAssociative(array $arr): bool
 {
-    if (!is_array($spacesCount)) {
-        $spacesCount = [$spacesCount, $spacesCount];
+    if (array_is_list($arr)) {
+        return false;
     }
-    $indent = str_repeat($spaceSymbol, $spacesCount[1]);
-    if ($inner) {
-        $endIndent = str_repeat($spaceSymbol, $spacesCount[1] - $spacesCount[0]);
+    return true;
+}
+
+function stylish(array $diff, int $deep = 1): string|null
+{
+    $startSpace = str_repeat(' ', 4 * $deep);
+    $endSpace = str_repeat(' ', 4 * ($deep - 1));
+    $removedSpace = substr($startSpace, 0, strlen($startSpace) - 2) . '- ';
+    $addedSpace = substr($startSpace, 0, strlen($startSpace) - 2) . '+ ';
+
+    if (isAssociative($diff)) {
+        $keys = array_keys($diff);
+
+        $callback = function ($acc, $key) use ($diff, $deep, $startSpace, $removedSpace, $addedSpace) {
+            $value = $diff[$key];
+            $format = "%s{$key}: %s";
+            $formatLf = "%s{$key}: %s\n";
+
+            if (is_array($value)) {
+                if (isAssociative($value)) {
+                    $currValue = stylish($value, $deep + 1);
+                    $acc[] = sprintf($format, $startSpace, $currValue, "");
+                } else {
+                    if (sizeof($value) === 2) {
+                        [$action, $currValue] = $value;
+                    } else {
+                        [$action, $prevValue, $currValue] = $value;
+                    }
+
+                    switch ($action) {
+                        case 'unchanged':
+                            if (is_array($currValue)) {
+                                $currValue = stylish($currValue, $deep + 1);
+                                $acc[] = sprintf($format, $startSpace, $currValue);
+                            } else {
+                                $acc[] = sprintf($formatLf, $startSpace, $currValue);
+                            }
+                            break;
+                        case 'removed':
+                            if (is_array($currValue)) {
+                                $currValue = stylish($currValue, $deep + 1);
+                                $acc[] = sprintf($format, $removedSpace, $currValue);
+                            } else {
+                                $acc[] = sprintf($formatLf, $removedSpace, $currValue);
+                            }
+                            break;
+                        case 'added':
+                            if (is_array($currValue)) {
+                                $currValue = stylish($currValue, $deep + 1);
+                                $acc[] = sprintf($format, $addedSpace, $currValue);
+                            } else {
+                                $acc[] = sprintf($formatLf, $addedSpace, $currValue);
+                            }
+                            break;
+                        case 'updated':
+                            if (is_array($prevValue)) {
+                                $prevValue = stylish($prevValue, $deep + 1);
+                                $acc[] = sprintf($format, $removedSpace, $prevValue);
+                            } else {
+                                $acc[] = sprintf($formatLf, $removedSpace, $prevValue);
+                            }
+
+                            if (is_array($currValue)) {
+                                $currValue = stylish($currValue, $deep + 1);
+                                $acc[] = sprintf($format, $addedSpace, $currValue);
+                            } else {
+                                $acc[] = sprintf($formatLf, $addedSpace, $currValue);
+                            }
+
+                            break;
+                    }
+                }
+            } else {
+                $acc[] = sprintf($formatLf, $startSpace, $value);
+            }
+            return $acc;
+        };
+
+        $formattedDiff = array_reduce($keys, $callback, ["{\n"]);
+        $formattedDiff[] = "{$endSpace}}\n";
+    } else {
+        $formattedDiff = array_reduce($diff, fn($value) => $acc[] = "{$startSpace}{$value}\n", ["[\n"]);
+        $formattedDiff[] = "{$endSpace}]\n";
     }
-    $spacesCount[1] = $spacesCount[1] + $spacesCount[0];
 
-
-    $indentWithMinus = substr($indent, 0, strlen($indent) - 2) . '-' . $spaceSymbol;
-    $indentWithPlus = substr($indent, 0, strlen($indent) - 2) . '+' . $spaceSymbol;
-
-    $formatted = "{\n";
-
-    foreach ($diff as $key => $value) {
-        if (!is_array($value)) {
-            $formatted .= "{$indent}{$key}: {$value}\n";
-            continue;
-        }
-
-        $action = $value[array_key_last($value)];
-
-        switch ($action) {
-            case '_update_':
-                $previousValue = $value[0];
-                if (is_array($previousValue)) {
-                    $previousValue = stylish($previousValue, $spaceSymbol, $spacesCount, true);
-                }
-
-                $currentValue = $value[1];
-                if (is_array($currentValue)) {
-                    $currentValue = stylish($currentValue, $spaceSymbol, $spacesCount, true);
-                }
-
-                $formatted .= "{$indentWithMinus}{$key}: {$previousValue}\n";
-                $formatted .= "{$indentWithPlus}{$key}: {$currentValue}\n";
-
-                break;
-            case '_remove_':
-                $currentValue = $value[0];
-                if (is_array($currentValue)) {
-                    $currentValue = stylish($currentValue, $spaceSymbol, $spacesCount, true);
-                }
-
-                $formatted .= "{$indentWithMinus}{$key}: {$currentValue}\n";
-
-                break;
-            case '_add_':
-                $currentValue = $value[0];
-                if (is_array($currentValue)) {
-                    $currentValue = stylish($currentValue, $spaceSymbol, $spacesCount, true);
-                }
-                $formatted .= "{$indentWithPlus}{$key}: {$currentValue}\n";
-
-                break;
-            default:
-                $currentValue = stylish($value, ' ', $spacesCount, true);
-                $formatted .= "{$indent}{$key}: {$currentValue}\n";
-        }
-    }
-
-    $endBracket = $inner ? "{$endIndent}}" : "}\n";
-    $formatted .= $endBracket;
-
-    return $formatted;
+    return implode('', $formattedDiff);
 }
