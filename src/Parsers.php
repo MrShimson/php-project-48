@@ -21,7 +21,7 @@ function convertTypes(array $coll): array
 function getData(string $path)
 {
     $absolute = $path; //Предполагаем, что изначально в $path был передан абсолютный путь
-    $relative = __DIR__ . "/..{$path}"; //Относительный путь, если в $path передали не абсолютный
+    $relative = __DIR__ . "/..{$path}"; //Относительный путь, если в $path передан не абсолютный
 
     if (file_exists($absolute) || file_exists($relative)) {
         $correctPath = file_exists($absolute) ? $absolute : $relative;
