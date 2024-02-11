@@ -4,7 +4,7 @@ namespace Differ\Formatters\Plain;
 
 use function Differ\Formatters\Stylish\isAssociative;
 
-function formatType(string $value): string
+function formatType(string|int|float $value): string
 {
     $types = ['null', 'true', 'false'];
     if (!in_array($value, $types)) {
