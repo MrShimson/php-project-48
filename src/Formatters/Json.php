@@ -69,5 +69,5 @@ function json(array $diff, array $previousKeys = [], bool $encode = true)
     $formattedDiff = array_reduce($keys, $callback, []);
 
     return $encode ?
-        json_encode($formattedDiff, JSON_PRETTY_PRINT) . "\n" : $formattedDiff;
+        json_encode($formattedDiff, JSON_PRETTY_PRINT) : $formattedDiff;
 }

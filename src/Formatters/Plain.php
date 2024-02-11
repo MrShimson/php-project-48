@@ -14,7 +14,7 @@ function formatType(string|int|float $value): string
     return $value;
 }
 
-function plain(array $diff, string $previousKey = ''): string|null
+function plain(array $diff, string $previousKey = '', int $deep = 1): string|null
 {
     $keys = array_keys($diff);
 
@@ -28,7 +28,7 @@ function plain(array $diff, string $previousKey = ''): string|null
         $value = $diff[$key];
 
         if (isAssociative($value)) {
-            $acc[] = plain($value, $property);
+            $acc[] = plain($value, $property, 2);
         } else {
             if (sizeof($value) === 2) {
                 [$action, $currValue] = $value;
@@ -77,6 +77,7 @@ function plain(array $diff, string $previousKey = ''): string|null
     };
 
     $formattedDiff = array_reduce($keys, $callback, []);
+    $formattedDiff = implode('', $formattedDiff);
 
-    return implode('', $formattedDiff);
+    return $deep === 1 ? trim($formattedDiff) : $formattedDiff;
 }
