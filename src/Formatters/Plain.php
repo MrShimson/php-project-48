@@ -14,7 +14,7 @@ function formatType(string|int|float $value): string
     return $value;
 }
 
-function plain(array $diff, string $previousKey = '', int $deep = 1): string|null
+function plain(array $diff, string $previousKey = '', int $deep = 1): string
 {
     $keys = array_keys($diff);
 

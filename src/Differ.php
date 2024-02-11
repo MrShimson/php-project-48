@@ -46,7 +46,7 @@ function buildDiff(array $tree1, array $tree2): array
     return array_reduce($keys, $callback, []);
 }
 
-function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'): string|array
+function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
 {
     try {
         $file1 = getData($pathToFile1);

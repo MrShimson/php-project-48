@@ -25,7 +25,7 @@ function formatType(mixed $value): mixed
     return $value;
 }
 
-function buildKeyRow(array $keys, $value): array
+function buildKeyRow(array $keys, mixed $value): array
 {
     $keys = array_reverse($keys);
     return array_reduce($keys, function ($acc, $key) use ($value) {
