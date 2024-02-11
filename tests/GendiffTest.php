@@ -24,12 +24,17 @@ class GendiffTest extends TestCase
 
         $pathResultStylish = $this->getFixtureFullPath('results', 'stylish', 'txt');
 
-        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathJson1, $pathJson2));
-        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathYaml1, $pathYaml2));
+        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathJson1, $pathJson2, 'stylish'));
+        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathYaml1, $pathYaml2, 'stylish'));
 
         $pathResultPlain = $this->getFixtureFullPath('results', 'plain', 'txt');
 
         $this->assertStringEqualsFile($pathResultPlain, genDiff($pathJson1, $pathJson2, 'plain'));
         $this->assertStringEqualsFile($pathResultPlain, genDiff($pathYaml1, $pathYaml2, 'plain'));
+
+        $pathResultJson = $this->getFixtureFullPath('results', 'json', 'json');
+
+        $this->assertStringEqualsFile($pathResultJson, genDiff($pathJson1, $pathJson2, 'json'));
+        $this->assertStringEqualsFile($pathResultJson, genDiff($pathYaml1, $pathYaml2, 'json'));
     }
 }

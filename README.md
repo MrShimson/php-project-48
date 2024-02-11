@@ -20,3 +20,6 @@
 
 ### Generate Difference (format - 'plain'):
 [![asciicast](https://asciinema.org/a/636998.svg)](https://asciinema.org/a/636998)
+
+### Generate Difference (format - 'json'):
+[![asciicast](https://asciinema.org/a/637479.svg)](https://asciinema.org/a/637479)
