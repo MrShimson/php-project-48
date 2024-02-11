@@ -1,6 +1,6 @@
 <?php
 
-namespace DifferenceCalculator\Parsers;
+namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 

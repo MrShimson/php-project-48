@@ -1,8 +1,8 @@
 <?php
 
-namespace DifferenceCalculator\Formatters\Json;
+namespace Differ\Formatters\Json;
 
-use function DifferenceCalculator\Formatters\Stylish\isAssociative;
+use function Differ\Formatters\Stylish\isAssociative;
 
 function formatType(mixed $value): mixed
 {

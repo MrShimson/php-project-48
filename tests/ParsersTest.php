@@ -1,10 +1,10 @@
 <?php
 
-namespace DifferenceCalculator\Tests;
+namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-use function DifferenceCalculator\Parsers\getData;
+use function Differ\Parsers\getData;
 
 class ParsersTest extends TestCase
 {

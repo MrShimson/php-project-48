@@ -1,9 +1,9 @@
 <?php
 
-namespace DifferenceCalculator\Gendiff;
+namespace Differ\Differ;
 
-use function DifferenceCalculator\Parsers\getData;
-use function DifferenceCalculator\Formatter\formatDiff;
+use function Differ\Parsers\getData;
+use function Differ\Formatter\formatDiff;
 
 function mergeKeys(array $coll1, array $coll2): array
 {

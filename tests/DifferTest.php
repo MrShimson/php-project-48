@@ -1,12 +1,12 @@
 <?php
 
-namespace DifferenceCalculator\Tests;
+namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-use function DifferenceCalculator\Gendiff\genDiff;
+use function Differ\Differ\genDiff;
 
-class GendiffTest extends TestCase
+class DifferTest extends TestCase
 {
     public function getFixtureFullPath($dir, $name, $ext)
     {
@@ -14,7 +14,7 @@ class GendiffTest extends TestCase
         return realpath(implode('/', $urlParts));
     }
 
-    public function testGenDiff(): void
+    public function testGendiff(): void
     {
         $pathJson1 = $this->getFixtureFullPath('nested', 'file1', 'json');
         $pathJson2 = $this->getFixtureFullPath('nested', 'file2', 'json');

@@ -1,10 +1,10 @@
 <?php
 
-namespace DifferenceCalculator\Cli;
+namespace Differ\Cli;
 
 use Docopt;
 
-use function DifferenceCalculator\Gendiff\genDiff;
+use function Differ\Differ\genDiff;
 
 /*function parseArgs(object $params): array
 {

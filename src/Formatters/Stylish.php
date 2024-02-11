@@ -1,6 +1,6 @@
 <?php
 
-namespace DifferenceCalculator\Formatters\Stylish;
+namespace Differ\Formatters\Stylish;
 
 function isAssociative(array $arr): bool
 {

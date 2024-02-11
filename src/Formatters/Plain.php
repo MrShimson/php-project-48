@@ -1,8 +1,8 @@
 <?php
 
-namespace DifferenceCalculator\Formatters\Plain;
+namespace Differ\Formatters\Plain;
 
-use function DifferenceCalculator\Formatters\Stylish\isAssociative;
+use function Differ\Formatters\Stylish\isAssociative;
 
 function formatType(string $value): string
 {
