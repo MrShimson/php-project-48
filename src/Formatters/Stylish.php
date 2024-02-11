@@ -86,10 +86,10 @@ function stylish(array $diff, int $deep = 1): string|null
         };
 
         $formattedDiff = array_reduce($keys, $callback, ["{\n"]);
-        $formattedDiff[] = "{$endSpace}}\n";
+        $formattedDiff[] = $deep === 1 ? "{$endSpace}}" : "{$endSpace}}\n";
     } else {
         $formattedDiff = array_reduce($diff, fn($value) => $acc[] = "{$startSpace}{$value}\n", ["[\n"]);
-        $formattedDiff[] = "{$endSpace}]\n";
+        $formattedDiff[] = $deep === 1 ? "{$endSpace}]" : "{$endSpace}]\n";
     }
 
     return implode('', $formattedDiff);
