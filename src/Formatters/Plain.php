@@ -25,15 +25,15 @@ function plain(array $diff, string $previousKey = ''): string|null
         $updateFormat = "Property '{$property}' was updated. From %s to %s\n";
         $property = "{$property}.";
 
-        $values = $diff[$key];
+        $value = $diff[$key];
 
-        if (isAssociative($values)) {
-            $acc[] = plain($values, $property);
+        if (isAssociative($value)) {
+            $acc[] = plain($value, $property);
         } else {
-            if (sizeof($values) === 2) {
-                [$action, $currValue] = $values;
+            if (sizeof($value) === 2) {
+                [$action, $currValue] = $value;
             } else {
-                [$action, $prevValue, $currValue] = $values;
+                [$action, $prevValue, $currValue] = $value;
             }
 
             switch ($action) {
