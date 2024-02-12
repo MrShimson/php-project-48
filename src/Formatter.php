@@ -18,9 +18,6 @@ function formatDiff(array $diff, string $format): string
         case 'json':
             $formattedDiff = json($diff);
             break;
-        default:
-            print_r("Wrong format '{$format}', deafault format 'stylish' applied:\n");
-            $formattedDiff = stylish($diff);
     }
 
     return $formattedDiff;

@@ -18,7 +18,7 @@ function convertTypes(array $coll): array
     return $file;
 }
 
-function getData(string $path)
+function getData(string $path): array|\Exception
 {
     $absolute = $path; //Предполагаем, что изначально в $path был передан абсолютный путь
     $relative = __DIR__ . "/..{$path}"; //Относительный путь, если в $path передан не абсолютный
@@ -32,7 +32,7 @@ function getData(string $path)
     $extension = pathinfo($correctPath, PATHINFO_EXTENSION);
 
     if ($extension === 'json') {
-        $data = file_get_contents($correctPath);
+        $data = (string) file_get_contents($correctPath);
         $data = json_decode($data, true);
     } elseif ($extension === 'yml' || $extension === 'yaml') {
         $data = Yaml::parseFile($correctPath);

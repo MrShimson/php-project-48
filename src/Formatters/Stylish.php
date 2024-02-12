@@ -10,7 +10,7 @@ function isAssociative(array $arr): bool
     return true;
 }
 
-function stylish(array $diff, int $deep = 1): string|null
+function stylish(array $diff, int $deep = 1): string
 {
     $startSpace = str_repeat(' ', 4 * $deep);
     $endSpace = str_repeat(' ', 4 * ($deep - 1));

@@ -13,7 +13,7 @@ use function Differ\Differ\genDiff;
     return $args;
 }*/
 
-function runUtility()
+function runUtility(): string
 {
     $doc = <<<DOC
     Generate diff
@@ -34,5 +34,5 @@ function runUtility()
     $pathToFile1 = $params['<firstFile>'];
     $pathToFile2 = $params['<secondFile>'];
 
-    print_r(genDiff($pathToFile1, $pathToFile2, $format));
+    return genDiff($pathToFile1, $pathToFile2, $format);
 }
