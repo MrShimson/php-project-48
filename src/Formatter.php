@@ -10,15 +10,10 @@ function formatDiff(array $diff, string $format): string
 {
     switch ($format) {
         case 'stylish':
-            $formattedDiff = stylish($diff);
-            break;
+            return stylish($diff);
         case 'plain':
-            $formattedDiff = plain($diff);
-            break;
+            return plain($diff);
         case 'json':
-            $formattedDiff = json($diff);
-            break;
+            return json($diff);
     }
-
-    return $formattedDiff;
 }

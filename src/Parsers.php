@@ -18,7 +18,7 @@ function convertTypes(array $coll): array
     return $file;
 }
 
-function getData(string $path): array|\Exception
+function getData(string $path): array
 {
     $absolute = $path; //Предполагаем, что изначально в $path был передан абсолютный путь
     $relative = __DIR__ . "/..{$path}"; //Относительный путь, если в $path передан не абсолютный

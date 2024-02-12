@@ -7,7 +7,7 @@ use function Differ\Formatters\Stylish\isAssociative;
 function formatType(string|int|float $value): string
 {
     $types = ['null', 'true', 'false'];
-    if (!in_array($value, $types)) {
+    if (!in_array($value, $types, true)) {
         $value = (is_int($value) || is_float($value)) ? $value : "'{$value}'";
     }
 
