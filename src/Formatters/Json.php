@@ -2,72 +2,77 @@
 
 namespace Differ\Formatters\Json;
 
-use function Differ\Formatters\Stylish\isAssociative;
+use function Differ\Formatters\Stylish\isLeaf;
 
 function formatType(mixed $value): mixed
 {
-    if (is_array($value)) {
-        return $value;
-    }
-
     switch ($value) {
         case 'null':
-            $value = null;
-            break;
+            return null;
         case 'true':
-            $value = true;
-            break;
+            return true;
         case 'false':
-            $value = false;
-            break;
+            return false;
+        default:
+            return $value;
     }
-
-    return $value;
 }
 
-function buildKeyRow(array $keys, mixed $value): array
+function searchInTree(string $action, array $diffTree): array
 {
-    $keys = array_reverse($keys);
-    return array_reduce($keys, function ($acc, $key) use ($value) {
-        if (empty($acc)) {
-            $acc[$key] = $value;
-        } else {
-            $stash = $acc;
-            $acc = [];
-            $acc[$key] = $stash;
-        }
-        return $acc;
-    }, []);
-}
+    $filteredTree = array_filter(
+        $diffTree,
+        fn($node) => !isLeaf($node) || $node['action'] === $action
+    );
 
-function json(array $diff, array $previousKeys = [], bool $encode = true)
-{
-    $keys = array_keys($diff);
+    $names = array_map(fn($node) => $node['name'], $filteredTree);
 
-    $callback = function ($acc, $key) use ($diff, $previousKeys) {
-        $value = $diff[$key];
-        $previousKeys[] = $key;
-        if (isAssociative($value)) {
-            $acc = array_merge_recursive($acc, json($value, $previousKeys, false));
+    $callback = function ($node) use ($action) {
+        $name = $node['name'];
+
+        if (!isLeaf($node)) {
+            $children = $node['children'];
+            $diffByAction = searchInTree($action, $children);
         } else {
-            if (sizeof($value) === 2) {
-                [$action, $finalValue] = $value;
-                $finalValue = formatType($finalValue);
+            $value = $node['value'];
+
+            if ($action === 'updated') {
+                [$prevValue, $currValue] = $value;
+                $diffByAction = [
+                    'removed' => formatType($prevValue),
+                    'added' => formatType($currValue)
+                ];
             } else {
-                [$action, $prevValue, $currValue] = $value;
-                $prevValue = formatType($prevValue);
-                $currValue = formatType($currValue);
-                $finalValue = ['removed' => $prevValue, 'added' => $currValue];
+                $diffByAction = formatType($value);
             }
-            $finalValue = buildKeyRow($previousKeys, $finalValue);
-            $acc[$action] = array_merge_recursive(($acc[$action] ?? []), $finalValue);
         }
 
-        return $acc;
+        return $diffByAction;
     };
 
-    $formattedDiff = array_reduce($keys, $callback, []);
+    return array_filter(
+        array_combine($names, array_map($callback, $filteredTree)),
+        fn($value) => $value !== []
+    );
+}
 
-    return $encode ?
-        json_encode($formattedDiff, JSON_PRETTY_PRINT) : $formattedDiff;
+function json(array $diffTree): string
+{
+    $actions = [
+        'updated',
+        'removed',
+        'added',
+        'unchanged'
+    ];
+
+    return json_encode(
+        array_combine(
+            $actions,
+            array_map(
+                fn($action) => searchInTree($action, $diffTree),
+                $actions
+            )
+        ),
+        JSON_PRETTY_PRINT
+    );
 }

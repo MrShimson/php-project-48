@@ -1,4 +1,43 @@
 {
+    "updated": {
+        "common": {
+            "setting3": {
+                "removed": true,
+                "added": null
+            },
+            "setting6": {
+                "doge": {
+                    "wow": {
+                        "removed": "",
+                        "added": "so much"
+                    }
+                }
+            }
+        },
+        "group1": {
+            "baz": {
+                "removed": "bas",
+                "added": "bars"
+            },
+            "nest": {
+                "removed": {
+                    "key": "value"
+                },
+                "added": "str"
+            }
+        }
+    },
+    "removed": {
+        "common": {
+            "setting2": 200
+        },
+        "group2": {
+            "abc": 12345,
+            "deep": {
+                "id": 45
+            }
+        }
+    },
     "added": {
         "common": {
             "follow": false,
@@ -28,45 +67,6 @@
         },
         "group1": {
             "foo": "bar"
-        }
-    },
-    "removed": {
-        "common": {
-            "setting2": 200
-        },
-        "group2": {
-            "abc": 12345,
-            "deep": {
-                "id": 45
-            }
-        }
-    },
-    "updated": {
-        "common": {
-            "setting3": {
-                "removed": true,
-                "added": null
-            },
-            "setting6": {
-                "doge": {
-                    "wow": {
-                        "removed": "",
-                        "added": "so much"
-                    }
-                }
-            }
-        },
-        "group1": {
-            "baz": {
-                "removed": "bas",
-                "added": "bars"
-            },
-            "nest": {
-                "removed": {
-                    "key": "value"
-                },
-                "added": "str"
-            }
         }
     }
 }

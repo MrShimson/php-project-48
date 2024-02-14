@@ -6,14 +6,14 @@ use function Differ\Formatters\Stylish\stylish;
 use function Differ\Formatters\Plain\plain;
 use function Differ\Formatters\Json\json;
 
-function formatDiff(array $diff, string $format): string
+function formatDiffTree(array $diffTree, string $format): string
 {
     switch ($format) {
         case 'stylish':
-            return stylish($diff);
+            return stylish($diffTree);
         case 'plain':
-            return plain($diff);
+            return plain($diffTree);
         case 'json':
-            return json($diff);
+            return json($diffTree);
     }
 }

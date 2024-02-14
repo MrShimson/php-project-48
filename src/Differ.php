@@ -3,59 +3,90 @@
 namespace Differ\Differ;
 
 use function Differ\Parsers\getData;
-use function Differ\Formatter\formatDiff;
+use function Differ\Formatter\formatDiffTree;
 
-function mergeKeys(array $coll1, array $coll2): array
+function isAssociativeArray(mixed $value): bool
 {
-    $keys = array_merge(array_keys($coll1), array_keys($coll2));//Функция сливает все ключи из двух массивов
-    $keys = array_values(array_unique($keys));                  //убирает повторяющиеся и
-    sort($keys);                                                //сортирует в алфавитном порядке
-    return $keys;
+    if (is_array($value)) {
+        return !array_is_list($value) ? true : false;
+    }
+
+    return false;
 }
 
-function buildDiff(array $tree1, array $tree2): array
+/*function intoATree(array $array): array
 {
-    $keys = mergeKeys($tree1, $tree2);
+    ksort($array);
+    $nodes = array_keys($array);
+    $branches = array_map(function ($branch) {
+        if (is_array($branch)) {
+            return isAssociative($branch) ? intoATree($branch) : [$branch];
+        }
+        return [$branch];
+    }, array_values($array));
 
-    $callback = function ($acc, $key) use ($tree1, $tree2) {
-        if (isset($tree1[$key]) && isset($tree2[$key])) {
-            $value1 = $tree1[$key];
-            $value2 = $tree2[$key];
+    return zip($nodes, $branches);
+}*/
 
-            if ($value1 === $value2) {
-                $acc[$key] = ['unchanged', $value1];
+function mergeKeys(array $firstArray, array $secondArray): array
+{
+    //Функция сливает все ключи из двух массивов, убирает повторяющиеся
+    //и сортирует их в алфавитном порядке
+    $firstArrayKeys = array_keys($firstArray);
+    $secondArrayKeys = array_keys($secondArray);
+    $mergedKeys = array_values(
+        array_unique(
+            array_merge($firstArrayKeys, $secondArrayKeys)
+        )
+    );
+    sort($mergedKeys);
+    return $mergedKeys;
+}
+
+function buildDiffTree(array $firstArray, array $secondArray): array
+{
+    $keys = mergeKeys($firstArray, $secondArray);
+
+    $callback = function ($key) use ($firstArray, $secondArray) {
+
+        if (isset($firstArray[$key]) && isset($secondArray[$key])) {
+            $prevValue = $firstArray[$key];
+            $currValue = $secondArray[$key];
+
+            if (isAssociativeArray($prevValue) && isAssociativeArray($currValue)) {
+                $diffNode = ['name' => $key, 'children' => buildDiffTree($prevValue, $currValue)];
             } else {
-                if (is_array($value1) && is_array($value2)) {
-                    $acc[$key] = (!array_is_list($value1) && !array_is_list($value2)) ?
-                        buildDiff($value1, $value2) : ['updated', $value1, $value2];
-                } else {
-                    $acc[$key] = ['updated', $value1, $value2];
-                }
+                $diffNode = $prevValue === $currValue ?
+                ['name' => $key, 'action' => 'unchanged', 'value' => $currValue] :
+                ['name' => $key, 'action' => 'updated', 'value' => [$prevValue, $currValue]];
             }
-        } elseif (isset($tree1[$key])) {
-            $value = $tree1[$key];
-            $acc[$key] = ['removed', $value];
+        } elseif (isset($firstArray[$key])) {
+            $value = $firstArray[$key];
+
+            $diffNode = ['name' => $key, 'action' => 'removed', 'value' => $value];
         } else {
-            $value = $tree2[$key];
-            $acc[$key] = ['added', $value];
+            $value = $secondArray[$key];
+
+            $diffNode = ['name' => $key, 'action' => 'added', 'value' => $value];
         }
 
-        return $acc;
+        return $diffNode;
     };
 
-    return array_reduce($keys, $callback, []);
+    return array_map($callback, $keys);
 }
 
-function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
+function genDiff(string $firstFilePath, string $secondFilePath, string $format = 'stylish')//: string
 {
     try {
-        $file1 = getData($pathToFile1);
-        $file2 = getData($pathToFile2);
+        $firstFileData = getData($firstFilePath);
+        $secondFileData = getData($secondFilePath);
     } catch (\Exception $error) {
         return $error->getMessage();
     }
 
-    $diff = buildDiff($file1, $file2);
+    $diffTree = buildDiffTree($firstFileData, $secondFileData);
 
-    return formatDiff($diff, $format);
+    return formatDiffTree($diffTree, $format);
+    //return $diffTree;
 }

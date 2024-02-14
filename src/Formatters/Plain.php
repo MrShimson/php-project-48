@@ -2,10 +2,14 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Differ\Formatters\Stylish\isAssociative;
+use function Differ\Formatters\Stylish\isLeaf;
 
-function formatType(string|int|float $value): string
+function formatValue(mixed $value): string
 {
+    if (is_array($value)) {
+        return '[complex value]';
+    }
+
     $types = ['null', 'true', 'false'];
     if (!in_array($value, $types, true)) {
         $value = (is_int($value) || is_float($value)) ? $value : "'{$value}'";
@@ -14,70 +18,61 @@ function formatType(string|int|float $value): string
     return $value;
 }
 
-function plain(array $diff, string $previousKey = '', int $deep = 1): string
+function buildFormats(string $property): array
 {
-    $keys = array_keys($diff);
+    return [
+        'added' => "Property '{$property}' was added with value: %s\n",
+        'removed' => "Property '{$property}' was removed\n",
+        'updated' => "Property '{$property}' was updated. From %s to %s\n"
+    ];
+}
 
-    $callback = function ($acc, $key) use ($diff, $previousKey) {
-        $property = "{$previousKey}{$key}";
-        $addFormat = "Property '{$property}' was added with value: %s\n";
-        $removeFormat = "Property '{$property}' was removed\n";
-        $updateFormat = "Property '{$property}' was updated. From %s to %s\n";
-        $property = "{$property}.";
+function plain(array $diffTree, string $previousKey = '', bool $trim = true): string
+{
+    $callback = function ($node) use ($previousKey) {
+        $name = $node['name'];
+        $formats = buildFormats("{$previousKey}{$name}");
+        $innerProperty = "{$previousKey}{$name}.";
 
-        $value = $diff[$key];
-
-        if (isAssociative($value)) {
-            $acc[] = plain($value, $property, 2);
+        if (!isLeaf($node)) {
+            $children = $node['children'];
+            $diffLine =  plain($children, $innerProperty, false);
         } else {
-            if (sizeof($value) === 2) {
-                [$action, $currValue] = $value;
-            } else {
-                [$action, $prevValue, $currValue] = $value;
-            }
+            $action = $node['action'];
+            $value = $node['value'];
 
             switch ($action) {
-                case 'unchanged':
+                case 'updated':
+                    [$prevValue, $currValue] = $value;
+                    $format = $formats['updated'];
+                    $diffLine = sprintf(
+                        $format,
+                        formatValue($prevValue),
+                        formatValue($currValue)
+                    );
+
                     break;
                 case 'removed':
-                    if (is_array($currValue)) {
-                        $currValue = "[complex value]";
-                    } else {
-                        $currValue = formatType($currValue);
-                    }
-                    $acc[] = sprintf($removeFormat, $currValue);
+                    $format = $formats['removed'];
+                    $diffLine = sprintf($format, formatValue($value));
+
                     break;
                 case 'added':
-                    if (is_array($currValue)) {
-                        $currValue = "[complex value]";
-                    } else {
-                        $currValue = formatType($currValue);
-                    }
-                    $acc[] = sprintf($addFormat, $currValue);
-                    break;
-                case 'updated':
-                    if (is_array($prevValue)) {
-                        $prevValue = "[complex value]";
-                    } else {
-                        $prevValue = formatType($prevValue);
-                    }
+                    $format = $formats['added'];
+                    $diffLine = sprintf($format, formatValue($value));
 
-                    if (is_array($currValue)) {
-                        $currValue = "[complex value]";
-                    } else {
-                        $currValue = formatType($currValue);
-                    }
-
-                    $acc[] = sprintf($updateFormat, $prevValue, $currValue);
                     break;
+                default:
+                    return;
             }
         }
 
-        return $acc;
+        return $diffLine;
     };
 
-    $formattedDiff = array_reduce($keys, $callback, []);
-    $formattedDiff = implode('', $formattedDiff);
+    if ($trim) {
+        return trim(implode('', array_map($callback, $diffTree)));
+    }
 
-    return $deep === 1 ? trim($formattedDiff) : $formattedDiff;
+    return implode('', array_map($callback, $diffTree));
 }

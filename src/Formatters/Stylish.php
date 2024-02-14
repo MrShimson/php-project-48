@@ -2,95 +2,130 @@
 
 namespace Differ\Formatters\Stylish;
 
-function isAssociative(array $arr): bool
+use function Differ\Differ\isAssociativeArray;
+
+/*function isNode(array $array): bool
 {
-    if (array_is_list($arr)) {
-        return false;
-    }
-    return true;
+    return isset($array['children']);
+}*/
+
+function isLeaf(array $array): bool
+{
+    return isset($array['value']);
 }
 
-function stylish(array $diff, int $deep = 1): string
+function buildIndents(int $count): array
 {
-    $startSpace = str_repeat(' ', 4 * $deep);
-    $endSpace = str_repeat(' ', 4 * ($deep - 1));
-    $removedSpace = substr($startSpace, 0, strlen($startSpace) - 2) . '- ';
-    $addedSpace = substr($startSpace, 0, strlen($startSpace) - 2) . '+ ';
+    $none = str_repeat(' ', 4 * $count);
+    $end = str_repeat(' ', 4 * ($count - 1));
+    $truncated = substr($none, 0, strlen($none) - 2);
+    $removed = "{$truncated}- ";
+    $added = "{$truncated}+ ";
 
-    if (isAssociative($diff)) {
-        $keys = array_keys($diff);
+    return [
+        'none' => $none,
+        'removed' => $removed,
+        'added' => $added,
+        'end' => $end
+    ];
+}
 
-        $callback = function ($acc, $key) use ($diff, $deep, $startSpace, $removedSpace, $addedSpace) {
-            $value = $diff[$key];
-            $format = "%s{$key}: %s";
-            $formatLf = "%s{$key}: %s\n";
-
-            if (is_array($value)) {
-                if (isAssociative($value)) {
-                    $currValue = stylish($value, $deep + 1);
-                    $acc[] = sprintf($format, $startSpace, $currValue, "");
-                } else {
-                    if (sizeof($value) === 2) {
-                        [$action, $currValue] = $value;
-                    } else {
-                        [$action, $prevValue, $currValue] = $value;
-                    }
-
-                    switch ($action) {
-                        case 'unchanged':
-                            if (is_array($currValue)) {
-                                $currValue = stylish($currValue, $deep + 1);
-                                $acc[] = sprintf($format, $startSpace, $currValue);
-                            } else {
-                                $acc[] = sprintf($formatLf, $startSpace, $currValue);
-                            }
-                            break;
-                        case 'removed':
-                            if (is_array($currValue)) {
-                                $currValue = stylish($currValue, $deep + 1);
-                                $acc[] = sprintf($format, $removedSpace, $currValue);
-                            } else {
-                                $acc[] = sprintf($formatLf, $removedSpace, $currValue);
-                            }
-                            break;
-                        case 'added':
-                            if (is_array($currValue)) {
-                                $currValue = stylish($currValue, $deep + 1);
-                                $acc[] = sprintf($format, $addedSpace, $currValue);
-                            } else {
-                                $acc[] = sprintf($formatLf, $addedSpace, $currValue);
-                            }
-                            break;
-                        case 'updated':
-                            if (is_array($prevValue)) {
-                                $prevValue = stylish($prevValue, $deep + 1);
-                                $acc[] = sprintf($format, $removedSpace, $prevValue);
-                            } else {
-                                $acc[] = sprintf($formatLf, $removedSpace, $prevValue);
-                            }
-
-                            if (is_array($currValue)) {
-                                $currValue = stylish($currValue, $deep + 1);
-                                $acc[] = sprintf($format, $addedSpace, $currValue);
-                            } else {
-                                $acc[] = sprintf($formatLf, $addedSpace, $currValue);
-                            }
-
-                            break;
-                    }
-                }
-            } else {
-                $acc[] = sprintf($formatLf, $startSpace, $value);
-            }
-            return $acc;
-        };
-
-        $formattedDiff = array_reduce($keys, $callback, ["{\n"]);
-        $formattedDiff[] = $deep === 1 ? "{$endSpace}}" : "{$endSpace}}\n";
-    } else {
-        $formattedDiff = array_reduce($diff, fn($value) => $acc[] = "{$startSpace}{$value}\n", ["[\n"]);
-        $formattedDiff[] = $deep === 1 ? "{$endSpace}]" : "{$endSpace}]\n";
+function formatValues(mixed $values, int $deep): string
+{
+    if (!is_array($values)) {
+        return $values;
     }
 
-    return implode('', $formattedDiff);
+    $indents = buildIndents($deep);
+    $indent = $indents['none'];
+    $end = $indents['end'];
+
+    if (isAssociativeArray($values)) {
+        $keys = array_keys($values);
+        $outputFormat = "{\n%s{$end}}";
+
+        $callback = function ($key) use ($values, $deep, $indent) {
+            $lineFormat = "{$indent}{$key}: %s\n";
+            $formattedValue = is_array($values[$key]) ?
+            formatValues($values[$key], $deep + 1) :
+            $values[$key];
+
+            return sprintf($lineFormat, $formattedValue);
+        };
+
+        $formattedArray = implode('', array_map($callback, $keys));
+    } else {
+        $outputFormat = "[\n%s{$end}]";
+
+        $callback = function ($value) use ($deep, $indent) {
+            $lineFormat = "{$indent}%s\n";
+            $formattedValue = is_array($value) ?
+            formatValues($value, $deep + 1) :
+            $value;
+
+            return sprintf($lineFormat, $formattedValue);
+        };
+
+        $formattedArray = implode('', array_map($callback, $values));
+    }
+
+    return sprintf($outputFormat, $formattedArray);
+}
+
+function stylish(array $diffTree, int $deep = 1): string
+{
+    $indents = buildIndents($deep);
+    $end = $indents['end'];
+    $outputFormat = "{\n%s{$end}}";
+
+    $callback = function ($node) use ($deep, $indents) {
+        $none = $indents['none'];
+        $removed = $indents['removed'];
+        $added = $indents['added'];
+        $name = $node['name'];
+        $lineFormat = "%s{$name}: %s\n";
+
+        if (!isLeaf($node)) {
+            $children = $node['children'];
+
+            $formattedNode = sprintf($lineFormat, $none, stylish($children, $deep + 1));
+        } else {
+            $action = $node['action'];
+            $value = $node['value'];
+
+            switch ($action) {
+                case 'unchanged':
+                    $formattedValue = formatValues($value, $deep + 1);
+                    $formattedNode = sprintf($lineFormat, $none, $formattedValue);
+
+                    break;
+                case 'removed':
+                    $formattedValue = formatValues($value, $deep + 1);
+                    $formattedNode = sprintf($lineFormat, $removed, $formattedValue);
+
+                    break;
+                case 'added':
+                    $formattedValue = formatValues($value, $deep + 1);
+                    $formattedNode = sprintf($lineFormat, $added, $formattedValue);
+
+                    break;
+                case 'updated':
+                    [$prevValue, $currValue] = $value;
+                    $formattedPrevValue = formatValues($prevValue, $deep + 1);
+                    $formattedCurrValue = formatValues($currValue, $deep + 1);
+
+                    $firstLine = sprintf($lineFormat, $removed, $formattedPrevValue);
+                    $secondLine = sprintf($lineFormat, $added, $formattedCurrValue);
+
+                    $formattedNode = "{$firstLine}{$secondLine}";
+                    break;
+            }
+        }
+
+        return $formattedNode;
+    };
+
+    $formattedDiffTree = implode('', array_map($callback, $diffTree));
+
+    return sprintf($outputFormat, $formattedDiffTree);
 }
