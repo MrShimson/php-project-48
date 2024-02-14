@@ -33,17 +33,17 @@ function getData(string $path): array
 
     if ($extension === 'json') {
         $data = (string) file_get_contents($correctPath);
-        $data = json_decode($data, true);
+        $parsedData = json_decode($data, true);
     } elseif ($extension === 'yml' || $extension === 'yaml') {
-        $data = Yaml::parseFile($correctPath);
+        $parsedData = Yaml::parseFile($correctPath);
     } else {
         throw new \Exception("\nThis file has invalid extension:\n.{$extension}\n");
     }
 
-    if ($data === null) {
+    if ($parsedData === null) {
         $basename = pathinfo($correctPath, PATHINFO_BASENAME);
         throw new \Exception("\nThis file is empty:\n{$basename}\n");
     }
 
-    return convertTypes($data);
+    return convertTypes($parsedData);
 }

@@ -2,6 +2,7 @@
 
 namespace Differ\Differ;
 
+use function Functional\sort;
 use function Differ\Parsers\getData;
 use function Differ\Formatter\formatDiffTree;
 
@@ -39,8 +40,8 @@ function mergeKeys(array $firstArray, array $secondArray): array
             array_merge($firstArrayKeys, $secondArrayKeys)
         )
     );
-    sort($mergedKeys);
-    return $mergedKeys;
+
+    return sort($mergedKeys, fn($left, $right) => strcmp($left, $right));
 }
 
 function buildDiffTree(array $firstArray, array $secondArray): array
