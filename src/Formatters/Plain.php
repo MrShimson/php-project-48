@@ -11,8 +11,9 @@ function formatValue(mixed $value): string
     }
 
     $types = ['null', 'true', 'false'];
+
     if (!in_array($value, $types, true)) {
-        $value = (is_int($value) || is_float($value)) ? $value : "'{$value}'";
+        return (is_int($value) || is_float($value)) ? $value : "'{$value}'";
     }
 
     return $value;

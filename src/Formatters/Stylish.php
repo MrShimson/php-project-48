@@ -88,7 +88,7 @@ function stylish(array $diffTree, int $deep = 1): string
         if (!isLeaf($node)) {
             $children = $node['children'];
 
-            $formattedNode = sprintf($lineFormat, $none, stylish($children, $deep + 1));
+            return sprintf($lineFormat, $none, stylish($children, $deep + 1));
         } else {
             $action = $node['action'];
             $value = $node['value'];
@@ -96,19 +96,16 @@ function stylish(array $diffTree, int $deep = 1): string
             switch ($action) {
                 case 'unchanged':
                     $formattedValue = formatValues($value, $deep + 1);
-                    $formattedNode = sprintf($lineFormat, $none, $formattedValue);
 
-                    break;
+                    return sprintf($lineFormat, $none, $formattedValue);
                 case 'removed':
                     $formattedValue = formatValues($value, $deep + 1);
-                    $formattedNode = sprintf($lineFormat, $removed, $formattedValue);
 
-                    break;
+                    return sprintf($lineFormat, $removed, $formattedValue);
                 case 'added':
                     $formattedValue = formatValues($value, $deep + 1);
-                    $formattedNode = sprintf($lineFormat, $added, $formattedValue);
 
-                    break;
+                    return sprintf($lineFormat, $added, $formattedValue);
                 case 'updated':
                     [$prevValue, $currValue] = $value;
                     $formattedPrevValue = formatValues($prevValue, $deep + 1);
@@ -117,12 +114,9 @@ function stylish(array $diffTree, int $deep = 1): string
                     $firstLine = sprintf($lineFormat, $removed, $formattedPrevValue);
                     $secondLine = sprintf($lineFormat, $added, $formattedCurrValue);
 
-                    $formattedNode = "{$firstLine}{$secondLine}";
-                    break;
+                    return "{$firstLine}{$secondLine}";
             }
         }
-
-        return $formattedNode;
     };
 
     $formattedDiffTree = implode('', array_map($callback, $diffTree));

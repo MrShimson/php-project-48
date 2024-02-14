@@ -15,5 +15,7 @@ function formatDiffTree(array $diffTree, string $format): string
             return plain($diffTree);
         case 'json':
             return json($diffTree);
+        default:
+            throw new \Exception("Wrong format '{$format}'");
     }
 }
