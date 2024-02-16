@@ -42,14 +42,12 @@ class ParsersTest extends TestCase
 
         $path = 'empty.xml';
         getData($path);
-        //
 
         //Тест на корректность расширения
         $this->expectExceptionMessage($this->extensionMessage);
 
         $path = $this->pathEmptyXml;
         getData($path);
-        //
 
         //Тесты на наличие в файлах каких-либо данных
         $this->expectExceptionMessage($this->emptinessMessageJson);
@@ -61,7 +59,6 @@ class ParsersTest extends TestCase
 
         $path = $this->pathEmptyYaml;
         getData($path);
-        //
     }
 
     public function testGetData(): void
@@ -99,6 +96,5 @@ class ParsersTest extends TestCase
 
         $this->assertEquals($file, getData($path1));
         $this->assertEquals($file, getData($path2));
-        //
     }
 }

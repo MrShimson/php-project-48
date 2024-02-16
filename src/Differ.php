@@ -15,20 +15,6 @@ function isAssociativeArray(mixed $value): bool
     return false;
 }
 
-/*function intoATree(array $array): array
-{
-    ksort($array);
-    $nodes = array_keys($array);
-    $branches = array_map(function ($branch) {
-        if (is_array($branch)) {
-            return isAssociative($branch) ? intoATree($branch) : [$branch];
-        }
-        return [$branch];
-    }, array_values($array));
-
-    return zip($nodes, $branches);
-}*/
-
 function mergeKeys(array $firstArray, array $secondArray): array
 {
     //Функция сливает все ключи из двух массивов, убирает повторяющиеся

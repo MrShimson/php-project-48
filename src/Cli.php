@@ -6,13 +6,6 @@ use Docopt;
 
 use function Differ\Differ\genDiff;
 
-/*function parseArgs(object $params): array
-{
-    $params = json_decode(json_encode($params), true);
-    $args = $params['args'];
-    return $args;
-}*/
-
 function runUtility(): string
 {
     $doc = <<<DOC

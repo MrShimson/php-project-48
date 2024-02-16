@@ -4,11 +4,6 @@ namespace Differ\Formatters\Stylish;
 
 use function Differ\Differ\isAssociativeArray;
 
-/*function isNode(array $array): bool
-{
-    return isset($array['children']);
-}*/
-
 function isLeaf(array $array): bool
 {
     return isset($array['value']);
