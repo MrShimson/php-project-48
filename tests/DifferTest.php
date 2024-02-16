@@ -18,8 +18,8 @@ class DifferTest extends TestCase
     public static function fillWithPaths(array $paths, array $data)
     {
         return array_map(fn($dataRow) => flatten(array_pad($dataRow, -3, $paths)), $data);
-    } 
-    
+    }
+
     public static function genDiffDataProvider()
     {
         $jsonPaths = [
