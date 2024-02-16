@@ -4,37 +4,57 @@ namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
 
+use function Functional\flatten;
 use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-    public function getFixtureFullPath($dir, $name, $ext)
+    public static function getFixtureFullPath($dir, $name, $ext)
     {
         $urlParts = [__DIR__, 'fixtures', $dir, $name . '.' . $ext];
         return realpath(implode('/', $urlParts));
     }
 
-    public function testGendiff(): void
+    public static function fillWithPaths(array $paths, array $data)
     {
-        $pathJson1 = $this->getFixtureFullPath('nested', 'file1', 'json');
-        $pathJson2 = $this->getFixtureFullPath('nested', 'file2', 'json');
+        return array_map(fn($dataRow) => flatten(array_pad($dataRow, -3, $paths)), $data);
+    } 
+    
+    public static function genDiffDataProvider()
+    {
+        $jsonPaths = [
+            self::getFixtureFullPath('nested', 'file1', 'json'),
+            self::getFixtureFullPath('nested', 'file2', 'json')
+        ];
 
-        $pathYaml1 = $this->getFixtureFullPath('nested', 'file1', 'yaml');
-        $pathYaml2 = $this->getFixtureFullPath('nested', 'file2', 'yaml');
+        $yamlPaths = [
+            self::getFixtureFullPath('nested', 'file1', 'yaml'),
+            self::getFixtureFullPath('nested', 'file2', 'yaml')
+        ];
 
-        $pathResultStylish = $this->getFixtureFullPath('results', 'stylish', 'txt');
+        $resultPathStylish = self::getFixtureFullPath('results', 'stylish', 'txt');
+        $resultPathPlain = self::getFixtureFullPath('results', 'plain', 'txt');
+        $resultPathJson = self::getFixtureFullPath('results', 'json', 'json');
 
-        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathJson1, $pathJson2, 'stylish'));
-        $this->assertStringEqualsFile($pathResultStylish, genDiff($pathYaml1, $pathYaml2, 'stylish'));
+        $formatAndResultPaths = [
+            ['stylish', $resultPathStylish],
+            ['plain',$resultPathPlain],
+            ['json', $resultPathJson]
+        ];
 
-        $pathResultPlain = $this->getFixtureFullPath('results', 'plain', 'txt');
+        $data = array_merge(
+            self::fillWithPaths($jsonPaths, $formatAndResultPaths),
+            self::fillWithPaths($yamlPaths, $formatAndResultPaths)
+        );
 
-        $this->assertStringEqualsFile($pathResultPlain, genDiff($pathJson1, $pathJson2, 'plain'));
-        $this->assertStringEqualsFile($pathResultPlain, genDiff($pathYaml1, $pathYaml2, 'plain'));
+        return $data;
+    }
 
-        $pathResultJson = $this->getFixtureFullPath('results', 'json', 'json');
-
-        $this->assertStringEqualsFile($pathResultJson, genDiff($pathJson1, $pathJson2, 'json'));
-        $this->assertStringEqualsFile($pathResultJson, genDiff($pathYaml1, $pathYaml2, 'json'));
+    /**
+     * @dataProvider genDiffDataProvider
+     */
+    public function testGenDiff($path1, $path2, $format, $resultPath): void
+    {
+        $this->assertStringEqualsFile($resultPath, genDiff($path1, $path2, $format));
     }
 }
